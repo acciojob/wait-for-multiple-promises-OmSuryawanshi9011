@@ -1,63 +1,54 @@
-let tableBody = document.getElementById('output');
+const res = document.getElementById("output");
 
-let row = document.createElement('tr');
-let cell1 = document.createElement('td');
-let cell2 = document.createElement('td');
+const promises = [
+  new Promise((resolve) => {
+    const time = Math.floor(Math.random() * 3 + 1) * 1000;
+    setTimeout(() => resolve({ name: "Promise 1", time: time / 1000 }), time);
+  }),
+  new Promise((resolve) => {
+    const time = Math.floor(Math.random() * 3 + 1) * 1000;
+    setTimeout(() => resolve({ name: "Promise 2", time: time / 1000 }), time);
+  }),
+  new Promise((resolve) => {
+    const time = Math.floor(Math.random() * 3 + 1) * 1000;
+    setTimeout(() => resolve({ name: "Promise 3", time: time / 1000 }), time);
+  }),
+];
 
-cell1.textContent = 'Loading...';
-cell1.colSpan = 2;  // This makes the cell span two columns
+async function callFns() {
+  const start = new Date();
+  // Use Promise.all to wait for all Promises to resolve
+  res.innerHTML += `
+            <tr id="loading">
+                <td colspan=2>Loading...</td>
+            </tr>
+          `;
+  await Promise.all(promises)
+    .then((results) => {
+      res.innerHTML = ``;
+      // Log the array of results
+      results.forEach((e) => {
+        res.innerHTML += `
+            <tr>
+                <td>${e.name}</td>
+                <td>${e.time}</td>
+            </tr>
+          `;
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 
+  const end = new Date();
 
-row.appendChild(cell1);
-row.appendChild(cell2);
-
-tableBody.appendChild(row);
-
-
-
-function createPromise() {
-	return new Promise((resolve) => {
-		let randomTime = Math.floor(Math.random() * 3) + 1;
-		setTimeout(() => {
-			resolve(randomTime);
-		}, randomTime * 1000);
-	});
-	
+  const timeInMillis = end - start;
+  res.innerHTML += `
+            <tr>
+                <td>Total</td>
+                <td>${timeInMillis / 1000}</td>
+            </tr>
+          `;
 }
 
-let promise1 = createPromise();
-let promise2 = createPromise();
-let promise3 = createPromise(); 
-
-
-Promise.all([promise1, promise2, promise3]).then((values) => {
-  console.log(values); // This will log an array of the resolved values of promise1, promise2, and promise3
-});
-var row1 = table.insertRow(-1);
-
-// Insert new cells in the row
-var cell1 = row1.insertCell(0);
-var cell2 = row1.insertCell(1);
-
-// Add some text to the new cells
-cell1.innerHTML = 'Promise 1';
-cell2.innerHTML = '2';
-
-// Repeat the same steps for the other rows
-var row2 = table.insertRow(-1);
-var cell1 = row2.insertCell(0);
-var cell2 = row2.insertCell(1);
-cell1.innerHTML = 'Promise 2';
-cell2.innerHTML = '1';
-
-var row3 = table.insertRow(-1);
-var cell1 = row3.insertCell(0);
-var cell2 = row3.insertCell(1);
-cell1.innerHTML = 'Promise 3';
-cell2.innerHTML = '3';
-
-var row4 = table.insertRow(-1);
-var cell1 = row4.insertCell(0);
-var cell2 = row4.insertCell(1);
-cell1.innerHTML = 'Total';
-cell2.innerHTML = '3.006';
+callFns();
